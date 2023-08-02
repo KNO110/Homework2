@@ -1,0 +1,190 @@
+using System;
+using System.Collections.Generic;
+//Powered by Ak1ne
+
+// Кастомки
+public class InvalidAgeException : Exception
+{
+    public InvalidAgeException(string message) : base(message) { }
+}
+
+public class InvalidNameException : Exception
+{
+    public InvalidNameException(string message) : base(message) { }
+}
+
+public class Student
+{
+    private string name;
+    private byte age;
+
+    public void SetName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new InvalidNameException("Имя студента не может быть пустым или содержать только пробелы.");
+
+        this.name = name;
+    }
+
+    public void SetAge(byte age)
+    {
+        if (age < 0 || age > 100)
+            throw new InvalidAgeException("Возраст студента должен быть в диапазоне от 0 до 100 лет.");
+
+        this.age = age;
+    }
+
+    public override string ToString()
+    {
+        return $"{name}, возраст: {age}";
+    }
+}
+
+public class Group
+{
+    private List<Student> students;
+
+    public Group()
+    {
+        students = new List<Student>();
+    }
+
+    public void AddStudent(Student student)
+    {
+        students.Add(student);
+    }
+
+    public void PrintStudents()
+    {
+        foreach (var student in students)
+        {
+            Console.WriteLine(student);
+        }
+    }
+}
+
+public class GroupManager
+{
+    private Dictionary<string, Group> groups;
+
+    public GroupManager()
+    {
+        groups = new Dictionary<string, Group>();
+    }
+    /// Powered by Ak1ne
+    public void CreateGroup(string groupName)
+    {
+        if (!groups.ContainsKey(groupName))
+        {
+            groups[groupName] = new Group();
+            Console.WriteLine($"Группа с названием \"{groupName}\" успешно создана.");
+        }
+        else
+        {
+            Console.WriteLine("Группа с таким названием уже существует:(");
+        }
+    }
+
+    public void AddStudentToGroup(string groupName, Student student)
+    {
+        if (groups.ContainsKey(groupName))
+        {
+            Group group = groups[groupName];
+            group.AddStudent(student);
+            Console.WriteLine($"Студент успешно добавлен в группу \"{groupName}\".");
+        }
+        else
+        {
+            Console.WriteLine($"Группа с названием \"{groupName}\" не найдена.");
+        }
+    }
+
+    public void PrintStudentsInGroup(string groupName)
+    {
+        if (groups.ContainsKey(groupName))
+        {
+            Console.WriteLine($"Список студентов в группе \"{groupName}\":");
+            Group group = groups[groupName];
+            group.PrintStudents();
+        }
+        else
+        {
+            Console.WriteLine($"Группа с названием \"{groupName}\" не найдена:(");
+        }
+    }
+}
+//// Powered by Ak1ne
+
+public class Program
+{
+    public static void Main()
+    {
+        GroupManager groupManager = new GroupManager();
+
+        while (true)
+        {
+            Console.WriteLine("Powered by Ak1ne.");
+            Console.WriteLine("Выберите опцию:");
+            Console.WriteLine("1) Создать группу");
+            Console.WriteLine("2) Добавить студента в группу");
+            Console.WriteLine("3) Вывести всех студентов в группе");
+            Console.WriteLine("4) Выйти за дверь");
+
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    Console.Write("Введите название группы: ");
+                    string groupName = Console.ReadLine();
+                    groupManager.CreateGroup(groupName);
+                    break;
+
+                case "2":
+                    Console.Write("Введите название группы: ");
+                    groupName = Console.ReadLine();
+
+                    Student s = new Student();
+                    Console.Write("Введите имя студента: ");
+                    string name = Console.ReadLine();
+                    s.SetName(name);
+
+                    Console.Write("Введите возраст студента: ");
+                    byte age = byte.Parse(Console.ReadLine());
+                    s.SetAge(age);
+
+                    groupManager.AddStudentToGroup(groupName, s);
+                    break;
+
+                case "3":
+                    Console.Write("Введите название группы: ");
+                    groupName = Console.ReadLine();
+                    groupManager.PrintStudentsInGroup(groupName);
+                    break;
+
+                case "4":
+                    Console.WriteLine("Выход из программы.");
+                    return;
+
+                default:
+                    Console.WriteLine("Неверный выбор.");
+                    break;
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////Powered by Ak1ne
