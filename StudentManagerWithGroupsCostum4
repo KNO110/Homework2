@@ -1,0 +1,431 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class InvalidAgeException : Exception
+{
+    public InvalidAgeException(string message) : base(message) { }
+}
+
+public class InvalidNameException : Exception
+{
+    public InvalidNameException(string message) : base(message) { }
+}
+
+public class Student
+{
+    private string lastName;
+    private string firstName;
+    private string middleName;
+    private DateTime dateOfBirth;
+    private Address homeAddress;
+    private string phoneNumber;
+    private List<int> homeworkGrades;
+    private List<int> finalWorkGrades;
+    private List<int> examGrades;
+
+    public Student(string lastName, string firstName, string middleName, DateTime dateOfBirth, Address homeAddress, string phoneNumber)
+    {
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.middleName = middleName;
+
+        this.dateOfBirth = dateOfBirth;
+        this.homeAddress = homeAddress;
+        this.phoneNumber = phoneNumber;
+        this.homeworkGrades = GenerateRandomGrades();
+        this.finalWorkGrades = GenerateRandomGrades();
+        this.examGrades = GenerateRandomGrades();
+    }
+
+    public string LastName
+    {
+        get { return lastName; }
+        set { lastName = value; }
+    }
+
+    public string FirstName
+    {
+        get { return firstName; }
+        set { firstName = value; }
+    }
+
+    public string MiddleName
+    {
+        get { return middleName; }
+        set { middleName = value; }
+    }
+
+    public DateTime DateOfBirth
+    {
+        get { return dateOfBirth; }
+        set { dateOfBirth = value; }
+    }
+
+    public Address HomeAddress
+    {
+        get { return homeAddress; }
+        set { homeAddress = value; }
+    }
+
+    public string PhoneNumber
+    {
+        get { return phoneNumber; }
+        set { phoneNumber = value; }
+    }
+
+    public List<int> HomeworkGrades
+    {
+        get { return homeworkGrades; }
+    }
+
+    public List<int> FinalWorkGrades
+    {
+        get { return finalWorkGrades; }
+    }
+
+    public List<int> ExamGrades
+    {
+        get { return examGrades; }
+    }
+
+    public void PrintStudentInfo()
+    {
+        Console.WriteLine($"Фамилия: {lastName}");
+        Console.WriteLine($"Имя: {firstName}");
+        Console.WriteLine($"Отчество: {middleName}");
+        Console.WriteLine($"Дата рождения: {dateOfBirth:dd.MM.yyyy}");
+        Console.WriteLine("Домашний адрес:");
+        Console.WriteLine($"  Улица: {homeAddress.Street}");
+        Console.WriteLine($"  Город: {homeAddress.City}");
+        Console.WriteLine($"  Почтовый индекс: {homeAddress.Postleitzahl}");
+        Console.WriteLine($"Телефонный номер: {phoneNumber}");
+
+        Console.WriteLine("Оценки по дз:");
+        foreach (var grade in homeworkGrades)
+        {
+            Console.Write($"{grade} ");
+        }
+        Console.WriteLine();
+
+        Console.WriteLine("Оценки по итоговым работам:");
+        foreach (var grade in finalWorkGrades)
+        {
+            Console.Write($"{grade} ");
+        }
+        Console.WriteLine();
+
+        Console.WriteLine("Оценки по экзаменам:");
+        foreach (var grade in examGrades)
+        {
+            Console.Write($"{grade} ");
+        }
+        Console.WriteLine();
+    }
+
+    private List<int> GenerateRandomGrades()
+    {
+        List<int> grades = new List<int>();
+        Random random = new Random();
+        for (int i = 0; i < 5; i++)
+        {
+            grades.Add(random.Next(1, 13));
+        }
+        return grades;
+    }
+
+    public bool IsStudentPassing => homeworkGrades.Average() >= 7;
+
+    public static bool operator ==(Student student1, Student student2)
+    {
+        return student1.homeworkGrades.Average() == student2.homeworkGrades.Average();
+    }
+
+    public static bool operator !=(Student student1, Student student2)
+    {
+        return student1.homeworkGrades.Average() != student2.homeworkGrades.Average();
+    }
+
+    public static bool operator >(Student student1, Student student2)
+    {
+        return student1.homeworkGrades.Average() > student2.homeworkGrades.Average();
+    }
+
+    public static bool operator <(Student student1, Student student2)
+    {
+        return student1.homeworkGrades.Average() < student2.homeworkGrades.Average();
+    }
+
+    public static bool operator >=(Student student1, Student student2)
+    {
+        return student1.homeworkGrades.Average() >= student2.homeworkGrades.Average();
+    }
+
+    public static bool operator <=(Student student1, Student student2)
+    {
+        return student1.homeworkGrades.Average() <= student2.homeworkGrades.Average();
+    }
+
+    public static bool operator true(Student student)
+    {
+        return student.IsStudentPassing;
+    }
+
+    public static bool operator false(Student student)
+    {
+        return !student.IsStudentPassing;
+    }
+}
+
+public class Address
+{
+    public string Street { get; set; }
+    public string City { get; set; }
+    public string Postleitzahl { get; set; }
+
+    public Address(string street, string city, string postalCode)
+    {
+        Street = street;
+        City = city;
+        Postleitzahl = postalCode;
+    }
+}
+
+public class Group
+{
+    private List<Student> students;
+
+    public Group()
+    {
+        students = new List<Student>();
+    }
+
+    public void AddStudent(Student student)
+    {
+        students.Add(student);
+    }
+
+    public void PrintStudents()
+    {
+        foreach (var student in students)
+        {
+            student.PrintStudentInfo();
+            Console.WriteLine($"Средний балл по ДЗ: {student.HomeworkGrades.Average()}");
+            Console.WriteLine();
+        }
+    }
+
+    public Student this[int index]
+    {
+        get
+        {
+            if (index >= 0 && index < students.Count)
+            {
+                return students[index];
+            }
+            else
+            {
+                throw new IndexOutOfRangeException("Индекс находится вне допустимого диапазона.");
+            }
+        }
+    }
+
+    public void CompareStudents()
+    {
+        if (students.Count < 2)
+        {
+            Console.WriteLine("Для сравнения студентов в группе нужно как минимум два студента.");
+            return;
+        }
+
+        Console.WriteLine("Выберите двух студентов для сравнения (по циферкам, например: 1 (потом Enter) и 2):");
+
+        for (int i = 0; i < students.Count; i++)
+        {
+            Console.WriteLine($"{i + 1}: {students[i].LastName} {students[i].FirstName}");
+        }
+
+        int studentIndex1, studentIndex2;
+
+        if (int.TryParse(Console.ReadLine(), out studentIndex1) && int.TryParse(Console.ReadLine(), out studentIndex2) &&
+            studentIndex1 > 0 && studentIndex2 > 0 && studentIndex1 <= students.Count && studentIndex2 <= students.Count)
+        {
+            Student student1 = students[studentIndex1 - 1];
+            Student student2 = students[studentIndex2 - 1];
+
+            Console.WriteLine("Сравнение студентов:");
+            Console.WriteLine($"{student1.LastName} {student1.FirstName} vs. {student2.LastName} {student2.FirstName}");
+
+            if (student1 == student2)
+            {
+                Console.WriteLine("Студенты имеют одинаковый средний балл за ДЗ.");
+            }
+            else if (student1 > student2)
+            {
+                Console.WriteLine($"{student1.LastName} {student1.FirstName} имеет более высокий средний балл за ДЗ.");
+            }
+            else
+            {
+                Console.WriteLine($"{student2.LastName} {student2.FirstName} имеет более высокий средний балл за ДЗ.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Неверный ввод. Укажите корректные индексы студентов.");
+        }
+    }
+}
+
+public class GroupManager
+{
+    private Dictionary<string, Group> groups;
+
+    public GroupManager()
+    {
+        groups = new Dictionary<string, Group>();
+    }
+
+    public void CreateGroup(string groupName)
+    {
+        if (!groups.ContainsKey(groupName))
+        {
+            groups[groupName] = new Group();
+            Console.WriteLine($"Группа с названием \"{groupName}\" успешно создана.");
+        }
+        else
+        {
+            Console.WriteLine("Группа с таким названием уже существует.");
+        }
+    }
+
+    public void AddStudentToGroup(string groupName, Student student)
+    {
+        if (groups.ContainsKey(groupName))
+        {
+            Group group = groups[groupName];
+            group.AddStudent(student);
+            Console.WriteLine($"Студент успешно добавлен в группу \"{groupName}\".");
+        }
+        else
+        {
+            Console.WriteLine($"Группа с названием \"{groupName}\" не найдена.");
+        }
+    }
+
+    public void PrintStudentsInGroup(string groupName)
+    {
+        if (groups.ContainsKey(groupName))
+        {
+            Console.WriteLine($"Список студентов в группе \"{groupName}\":");
+            Group group = groups[groupName];
+            group.PrintStudents();
+        }
+        else
+        {
+            Console.WriteLine($"Группа с названием \"{groupName}\" не найдена.");
+        }
+    }
+
+    public void CompareStudentsInGroup(string groupName)
+    {
+        if (groups.ContainsKey(groupName))
+        {
+            Group group = groups[groupName];
+            group.CompareStudents();
+        }
+        else
+        {
+            Console.WriteLine($"Группа с названием \"{groupName}\" не найдена.");
+        }
+    }
+}
+
+public class Program
+{
+    public static void Main()
+    {
+        GroupManager groupManager = new GroupManager();
+
+        while (true)
+        {
+            Console.WriteLine("Powered by Ak1ne.");
+            Console.WriteLine("Выберите опцию:");
+            Console.WriteLine("1) Создать группу");
+            Console.WriteLine("2) Добавить студента в группу");
+            Console.WriteLine("3) Вывести всех студентов в группе");
+            Console.WriteLine("4) Сравнить студентов в группе");
+            Console.WriteLine("5) Выйти");
+
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    Console.Write("Введите название группы: ");
+                    string groupName = Console.ReadLine();
+                    groupManager.CreateGroup(groupName);
+                    break;
+
+                case "2":
+                    Console.Write("Введите название группы: ");
+                    groupName = Console.ReadLine();
+
+                    Console.Write("Введите фамилию студента: ");
+                    string lastName = Console.ReadLine();
+
+                    Console.Write("Введите имя студента: ");
+                    string firstName = Console.ReadLine();
+
+                    Console.Write("Введите отчество студента: ");
+                    string middleName = Console.ReadLine();
+
+                    Console.Write("Введите дату рождения студента (гггг-мм-дд): ");
+                    if (DateTime.TryParse(Console.ReadLine(), out DateTime dateOfBirth))
+                    {
+                        Console.Write("Введите улицу студента: ");
+                        string street = Console.ReadLine();
+
+                        Console.Write("Введите город студента: ");
+                        string city = Console.ReadLine();
+
+                        Console.Write("Введите почтовый индекс домашнего адреса студента: ");
+                        string postalCode = Console.ReadLine();
+
+                        Address homeAddress = new Address(street, city, postalCode);
+
+                        Console.Write("Введите телефонный номер студента: ");
+                        string phoneNumber = Console.ReadLine();
+
+                        Student s = new Student(lastName, firstName, middleName, dateOfBirth, homeAddress, phoneNumber);
+
+                        groupManager.AddStudentToGroup(groupName, s);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Неверный формат даты рождения.");
+                    }
+                    break;
+
+                case "3":
+                    Console.Write("Введите название группы: ");
+                    groupName = Console.ReadLine();
+                    groupManager.PrintStudentsInGroup(groupName);
+                    break;
+
+                case "4":
+                    Console.Write("Введите название группы: ");
+                    groupName = Console.ReadLine();
+                    groupManager.CompareStudentsInGroup(groupName);
+                    break;
+
+                case "5":
+                    Console.WriteLine("Выход из программы.");
+                    return;
+
+                default:
+                    Console.WriteLine("Неверный выбор.");
+                    break;
+            }
+        }
+    }
+}
